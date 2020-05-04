@@ -6,15 +6,15 @@ public class PortalCam : MonoBehaviour
 {
     public Transform playerCam;
     public Transform portal;
-    public Transform oPortal;
+    public Transform otherPortal;
  
     void Update()
     {
         //pofp = PlayerOffsetFromPortal
-        Vector3 pofp = playerCam.position - oPortal.position;
+        Vector3 pofp = playerCam.position - otherPortal.position;
         transform.position = portal.position + pofp;
 
-        float adbpr = Quaternion.Angle(portal.rotation, oPortal.rotation);
+        float adbpr = Quaternion.Angle(portal.rotation, otherPortal.rotation);
 
         Quaternion prd = Quaternion.AngleAxis(adbpr, Vector3.up);
         Vector3 ncd = prd * playerCam.forward;

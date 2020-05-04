@@ -4,57 +4,67 @@ using UnityEngine;
 
 public class Portal_Teleport : MonoBehaviour
 {
-    public Transform Player;
+    //Apparently, since we were using the Character Controller, the player wasn't teleporting properly
+    public CharacterController player;
+
     public Transform receiver;
 
-
     private bool PlayerIsOverLapping = false;
+
     void Update()
     {
-
+        
         if (PlayerIsOverLapping)
         {
-            Vector3 ptp = Player.position - transform.position;
+            //Since now we are referencing from the Character Controller, he have to specify the transform, and then position
+            //since our object isn't a Transform type anymore.
+            Vector3 ptp = player.transform.position - transform.position;
+
             float dotProduct = Vector3.Dot(transform.up, ptp);
 
-
-            if (dotProduct < 0f)
+            //If this is true: the player has moved across the portal
+            if (dotProduct < -0.1f)
             {
+                
 
-                float rotationDiff = Quaternion.Angle(transform.rotation, receiver.rotation);
+                //Teleport him
+                float rotationDiff = -Quaternion.Angle(transform.rotation, receiver.rotation);
                 rotationDiff += 180;
-                Player.Rotate(Vector3.up, rotationDiff);
 
-                Vector3 PositionOffSet = Quaternion.Euler(0f, rotationDiff, 0f) * ptp;
-                Player.position = receiver.position + PositionOffSet;
+                //That's the same case for our rotation
+                //since player isn't a Transform type anymore
+                player.transform.Rotate(Vector3.up, rotationDiff);
+
+                Vector3 positionOffSet = Quaternion.Euler(0f, rotationDiff, 0f) * ptp;
+
+                //We want to enable the character controller, so that we can actually do the offset.
+                //If not, it'll still detect Portal A, which was part of the problem.
+                //By doing this, we prevent collisions temporarily
+                player.enabled = false;
+                player.transform.position = receiver.position + positionOffSet;
+                player.enabled = true;
                  
+                //Then we do our normal "we aren't overlapping
+                //This where only little changes that needed to be made.
                 PlayerIsOverLapping = false;
-                Debug.Log("PlayerIsOverLapping"); 
-
-
-
             }
         }
-
     }
+
 
     void OnTriggerEnter(Collider other)
     {
         if (other.tag == "Player")
         {
             PlayerIsOverLapping = true;
-            Debug.Log("Colliding");
+            Debug.Log(gameObject.name);
+            return;
         }
     }
 
     void OnTriggerExit(Collider other)
     {
         if (other.tag == "Player")
-        {
             PlayerIsOverLapping = false;
-        }
     }
-   
-
-
 }
